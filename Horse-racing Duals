@@ -1,0 +1,89 @@
+import java.util.*;
+import java.io.*;
+import java.math.*;
+
+/**
+ * Auto-generated code below aims at helping you parse
+ * the standard input according to the problem statement.
+ **/
+class Solution {
+
+    public static int classicMethod(LinkedList<Integer> horsesIntCM, int smallestDiffCM)
+    {
+        int previousValue, currentValue;
+
+        Collections.sort(horsesIntCM);
+
+        for (int i = 1; i < horsesIntCM.size()-1; i++)
+        {
+            previousValue = horsesIntCM.get(i);
+            currentValue = horsesIntCM.get(i+1);           
+            smallestDiffCM = Math.min(smallestDiffCM, currentValue - previousValue);
+        }
+        
+        return smallestDiffCM;
+    }
+
+    /* It should be static because if it is not we should get non - static exception */
+    public static int treeSetMethod(TreeSet<Integer> horsesTS, int smallestDiffSM)
+    {
+        int previousValue, currentValue;
+
+        /* Iterator points to the elements so we can easily navigate throught the whole TreeSet */ 
+        Iterator<Integer> horsesIT = horsesTS.iterator();
+        currentValue = horsesIT.next();
+        previousValue = currentValue;
+
+        while (horsesIT.hasNext())
+        {
+            currentValue = horsesIT.next();
+            smallestDiffSM = Math.min(smallestDiffSM,currentValue - previousValue);
+            previousValue = currentValue;
+        }
+
+        return smallestDiffSM;
+    }
+
+    public static void main(String args[]) 
+    {
+        Scanner in = new Scanner(System.in);
+        int N = in.nextInt();
+        System.err.printf("Number of horses:%d\n",N);
+        /* We should initialize in the next way because we need the Smallest value. */
+        int smallestDiff = Integer.MAX_VALUE;
+        int tmp = 0;
+        
+        /* With the classic list and sorting method on the last case that will be slow, you cannot raeach the goal with arrayList or Linked list*/
+
+        // TreeSet is one of Java's sorted data structure
+        /* It uses the object comparable interface if it is not imeplemented we wont able to use it we will get
+        runtime exception*/
+        /* The dublicated elements wont be inserted, this object during the element adding compares every member each other */
+        TreeSet<Integer> horses = new TreeSet<Integer>();       
+        
+        /* The easy solution */
+        LinkedList<Integer> horsesInt = new LinkedList<Integer>();
+
+        /*We store the whole dataset into ArrayList*/
+        for (int i = 0; i < N; i++) 
+        {
+            int pi = in.nextInt();
+            horses.add(pi);
+            horsesInt.add(pi);
+        }
+
+        /* We should decide which list type would be used */
+        /* That thing could help TreeSet doesnt store dublications so it will be shorter if there are some */
+        if(horses.size() == horsesInt.size())
+        {
+            smallestDiff = treeSetMethod(horses,smallestDiff);
+            System.err.println("TreeSet method was used!");
+        }
+        else
+        {
+            smallestDiff = classicMethod(horsesInt,smallestDiff);
+            System.err.println("Classic method was used!");            
+        }
+        System.out.println(smallestDiff);
+    }
+}
