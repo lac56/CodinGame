@@ -1,0 +1,199 @@
+import java.util.*;
+import java.io.*;
+import java.math.*;
+
+/**
+ * Auto-generated code below aims at helping you parse
+ * the standard input according to the problem statement.
+ **/
+class Solution {
+
+    public static void whoIsTheWinner(Map<String,String> whoBeatsWhoITW, Map<Integer,String> playersITW, Map<Integer,String> matchHistoryITW)
+    {
+        /* We create iterator for our players it needed because we investigate two players once */
+        Iterator<Map.Entry<Integer, String>> playerITR = playersITW.entrySet().iterator(); 
+        //Iterator<Map.Entry<Integer, String>> whoBeatsWhoITW_ITR = whoBeatsWhoITW.entrySet().iterator(); 
+        /* player1 player 2 */
+        Map.Entry<Integer,String> leftPlayer = null; 
+        Map.Entry<Integer,String> rightPlayer = null;
+
+        int numberOfPlayers = 0;
+        int theWinner = 0;
+        String createHistoryString = "";
+
+        while(playerITR.hasNext()) 
+        { 
+            playerITR.next();
+            numberOfPlayers++;
+        }
+
+        playerITR = playersITW.entrySet().iterator(); 
+
+        System.err.println("Number of players: " + numberOfPlayers);
+
+        Map<Integer,String> losersITW = new LinkedHashMap<Integer,String>();
+
+        String currentPairKey = "";
+        String currentPairKeyReverse = "";        
+
+        /* If we dont have the winner we play */ 
+        if(numberOfPlayers != 1)
+        {
+            /* go throught and play the games */ 
+            while(playerITR.hasNext()) 
+            { 
+                leftPlayer = playerITR.next();
+                rightPlayer = playerITR.next();
+
+                currentPairKey = leftPlayer.getValue() + rightPlayer.getValue();
+                currentPairKeyReverse = rightPlayer.getValue() + leftPlayer.getValue();
+ 
+                // System.err.println("Left Key:" + leftPlayer.getKey() + " value:" + leftPlayer.getValue());
+                // System.err.println("Right Key:" + rightPlayer.getKey() + " value:" + rightPlayer.getValue());    
+
+                /* We have to remove the losers */
+                if(whoBeatsWhoITW.get(currentPairKey) != null)
+                {
+                    //System.err.println("Left player won.");
+                    losersITW.put(rightPlayer.getKey(), rightPlayer.getValue());
+
+                    /* Update the current history */
+                    createHistoryString = "";
+                    createHistoryString = createHistoryString.concat(matchHistoryITW.get(leftPlayer.getKey()));
+                    createHistoryString = createHistoryString.concat(rightPlayer.getKey().toString());
+                    createHistoryString = createHistoryString.concat(" "); 
+                    //System.err.println("Loser:" + leftPlayer.getKey().toString());                   
+                    matchHistoryITW.remove(leftPlayer.getKey());
+
+                    matchHistoryITW.put(leftPlayer.getKey(), createHistoryString);
+                    //System.err.println("Member history:" + matchHistoryITW.get(leftPlayer.getKey()));
+                    System.err.println(matchHistoryITW);  
+                }
+                else if(whoBeatsWhoITW.get(currentPairKeyReverse) != null)
+                {
+                    //System.err.println("Right player won.");
+                    losersITW.put(leftPlayer.getKey(), leftPlayer.getValue());
+
+                    /* Update the current history */
+                    createHistoryString = "";
+                    createHistoryString = createHistoryString.concat(matchHistoryITW.get(rightPlayer.getKey()));  // Get the last status
+                    createHistoryString = createHistoryString.concat(leftPlayer.getKey().toString());             // add new record
+                    createHistoryString = createHistoryString.concat(" "); 
+                    /* Update */
+                    //System.err.println("Loser:" + rightPlayer.getKey().toString());                        
+                    matchHistoryITW.remove(rightPlayer.getKey());
+
+                    matchHistoryITW.put(rightPlayer.getKey(), createHistoryString);
+                    //System.err.println("Member history:" + matchHistoryITW.get(rightPlayer.getKey())); 
+                    System.err.println(matchHistoryITW);                                                                                       
+                }
+                else
+                {
+                    if(leftPlayer.getKey() > rightPlayer.getKey())
+                    {
+                    //System.err.println("Right player won.");
+                        losersITW.put(leftPlayer.getKey(), leftPlayer.getValue());  
+
+                        /* Update the current history */
+                        createHistoryString = "";
+                        createHistoryString = createHistoryString.concat(matchHistoryITW.get(rightPlayer.getKey()));
+                        createHistoryString = createHistoryString.concat(leftPlayer.getKey().toString());
+                        createHistoryString = createHistoryString.concat(" ");  
+                        //System.err.println("Loser:" + rightPlayer.getKey().toString());                                          
+                        matchHistoryITW.remove(rightPlayer.getKey());
+
+                        matchHistoryITW.put(rightPlayer.getKey(), createHistoryString);
+                        //System.err.println("History:" + createHistoryString); 
+                        System.err.println(matchHistoryITW);
+                    }
+                    else
+                    {
+                        //System.err.println("Left player won.");
+                        losersITW.put(rightPlayer.getKey(), rightPlayer.getValue());
+
+                        /* Update the current history */
+                        createHistoryString = "";
+                        createHistoryString = createHistoryString.concat(matchHistoryITW.get(leftPlayer.getKey()));
+                        createHistoryString = createHistoryString.concat(rightPlayer.getKey().toString());
+                        createHistoryString = createHistoryString.concat(" ");                         
+                        //System.err.println("Loser:" + leftPlayer.getKey().toString());                   
+                        matchHistoryITW.remove(leftPlayer.getKey());
+
+                        matchHistoryITW.put(leftPlayer.getKey(), createHistoryString);
+                        //System.err.println("Member history:" + matchHistoryITW.get(leftPlayer.getKey()));
+                        System.err.println(matchHistoryITW);                         
+                    }                                                                   
+                }
+                /********************************/                
+            }
+            /* Remove the losers from the main map */ 
+            for (Map.Entry<Integer,String> loser : losersITW.entrySet())
+            {
+                playersITW.remove(loser.getKey());
+                //System.err.println("Removed player: " + loser.getKey() + " " + loser.getValue());
+            }
+
+            // numberOfPlayers = 0;
+            // playerITR = playersITW.entrySet().iterator(); 
+            // while(playerITR.hasNext()) 
+            // { 
+            //     playerITR.next();
+            //     numberOfPlayers++;
+            // }
+
+            //System.err.println("After removing Number of players: " + numberOfPlayers);
+
+            whoIsTheWinner(whoBeatsWhoITW, playersITW,matchHistoryITW);
+        }
+        else
+        {
+            theWinner =  playerITR.next().getKey();           
+            System.out.println(theWinner);
+            System.out.println(matchHistoryITW.get(theWinner).trim()); 
+        }
+    }
+
+    public static void main(String args[]) {
+        Scanner in = new Scanner(System.in);
+        int N = in.nextInt();
+
+        /* We have to get the history of games, but before we go through we dont know the winner :/ */ 
+        Map<Integer,String> matchHistory = new LinkedHashMap<Integer,String>();
+
+        /* We should use Dictionary because we would have dublicated key records the map doesnt allow it */
+        /* It doesnt work. There is no good method to itarete it */
+        /* Dictionary whoBeatsWho = new Hashtable();*/
+        /* Work around*/
+        /* Map with list is too complicated so complicated try to work around with pairs */
+        Map<String,String> whoBeatsWho = new LinkedHashMap<String,String>();         
+
+        /* Define the rules */
+        whoBeatsWho.put("CP", "C");
+        whoBeatsWho.put("CL", "C");
+        whoBeatsWho.put("PR", "P");
+        whoBeatsWho.put("PS", "P");
+        whoBeatsWho.put("RL", "R");
+        whoBeatsWho.put("RC", "R");
+        whoBeatsWho.put("LS", "L");
+        whoBeatsWho.put("LP", "L");
+        whoBeatsWho.put("SC", "S");
+        whoBeatsWho.put("SR", "S");   
+
+        /* We should store the players and a map will fit for it */
+        Map<Integer,String> players = new LinkedHashMap<Integer,String>();  
+
+        /* Game loop */
+        for (int i = 0; i < N; i++) 
+        {
+            int NUMPLAYER = in.nextInt();
+            String SIGNPLAYER = in.next();
+
+            players.put(NUMPLAYER, SIGNPLAYER);
+            matchHistory.put(NUMPLAYER, "");
+        }
+        //whoIsTheWinner(whoBeatsWho,players);
+
+        whoIsTheWinner(whoBeatsWho,players,matchHistory);
+
+    }
+}
