@@ -1,0 +1,115 @@
+import java.util.*;
+import java.io.*;
+import java.math.*;
+
+/**
+ * Auto-generated code below aims at helping you parse
+ * the standard input according to the problem statement.
+ **/
+class Player {
+
+    public static int findNearestGateway(LinkedList<Integer> fngGatewayList, int fngSIPos){
+        int returnIndex = 0;
+
+        for(int currentGateway : fngGatewayList){
+            System.err.println("Size: "+ fngGatewayList.get(fngGatewayList.size() - 1) + "idx: " + fngGatewayList.get(fngGatewayList.indexOf(currentGateway)));
+            if (fngGatewayList.get(fngGatewayList.size() - 1) == fngGatewayList.get(fngGatewayList.indexOf(currentGateway))){
+                System.err.println("First if executed.");
+                returnIndex = fngGatewayList.size() - 1;
+                /* if is this the last element then stop */
+                break;
+            }
+            else if (currentGateway < fngSIPos && fngSIPos < fngGatewayList.get(fngGatewayList.indexOf(currentGateway) + 1)) {
+                System.err.println("Second if executed.");                
+                /* if it is not the last but fit on our rule then we have our answer */
+                returnIndex = fngGatewayList.indexOf(currentGateway);
+                break;
+            }
+        }
+
+        System.err.println("The closest gateway index: " + returnIndex);
+        return returnIndex;
+    }
+
+    public static void main(String args[]) {
+        Scanner in = new Scanner(System.in);
+        int N = in.nextInt(); // the total number of nodes in the level, including the gateways
+        int L = in.nextInt(); // the number of links
+        int E = in.nextInt(); // the number of exit gateways
+
+        int pointA = 0, pointB = 0;
+        int nearestGateway = 0;
+        int thereIsCommonLink = 0;
+
+        System.err.println("N:"+N+" L:"+L+" E:"+E);
+
+        /*This will hold the total gateways*/
+        LinkedList<Integer> gatewayList = new LinkedList<Integer>();
+
+        /*Contains the number of links between the gateways*/
+        //LinkedList<Integer> links = new LinkedList<Integer>();
+        //It is points to its elements I should use it in the cycle.
+
+        /*Contains the links pairs*/
+        LinkedList<LinkedList<Integer>> matrix = new LinkedList<LinkedList<Integer>>();
+
+        for (int i = 0; i < L; i++) {
+            int N1 = in.nextInt(); // N1 and N2 defines a link between these nodes
+            int N2 = in.nextInt();
+            LinkedList<Integer> links = new LinkedList<Integer>();
+            links.add(N1);
+            links.add(N2);
+
+            matrix.add(links);
+            // System.err.println(links.toString());
+            // System.err.println("N1:"+N1+" N2:"+N2);
+            // System.err.println(matrix.toString());            
+        }
+
+        for (int i = 0; i < E; i++) {
+            int EI = in.nextInt(); // the index of a gateway node
+            gatewayList.add(EI);
+            System.err.println("EI:"+EI);
+        }
+
+        System.err.println("gatewayList:" + gatewayList.toString());
+        System.err.println("matrix:" + matrix.toString());
+
+        // game loop
+        while (true) {
+            int SI = in.nextInt(); // The index of the node on which the Skynet agent is positioned this turn
+    
+            /*Find the nearest gateway to the Skynet.*/
+            /**/
+            System.err.println("SI pos:" + SI);          
+            nearestGateway = gatewayList.get(findNearestGateway(gatewayList,SI));    
+
+            for(LinkedList<Integer> subList : matrix)
+            {
+                if(subList.indexOf(nearestGateway) != -1 && subList.indexOf(SI) !=-1)  /*gateway index + nearest node index*/
+                {
+                    System.err.println("Inner part has ben executed.");
+                    pointA = subList.get(0);
+                    pointB = subList.get(1);
+                    System.out.println(pointA+" "+pointB);
+                    thereIsCommonLink = 1;
+                    break;
+                }          
+            }
+            if(thereIsCommonLink == 0){
+                for(LinkedList<Integer> subList : matrix)
+                {
+                    if(subList.indexOf(nearestGateway) != -1)  /*gateway index + nearest node index*/
+                    {
+                        System.err.println("Outer part has ben executed.");                        
+                        pointA = subList.get(0);
+                        pointB = subList.get(1);
+                        System.out.println(pointA+" "+pointB);
+                        break;
+                    }          
+                }
+            }
+            thereIsCommonLink = 0;
+        }
+    }
+}
