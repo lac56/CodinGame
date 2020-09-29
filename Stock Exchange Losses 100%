@@ -1,0 +1,93 @@
+import java.util.*;
+import java.io.*;
+import java.math.*;
+
+/**
+ * Auto-generated code below aims at helping you parse
+ * the standard input according to the problem statement.
+ **/
+class Solution {
+
+    public static void main(String args[]) {
+        Scanner in = new Scanner(System.in);
+        int n = in.nextInt();
+
+        /* Variables defined by me */ 
+        ArrayList<Integer> stocks = new ArrayList<Integer>();
+        int maxLoss = 0;
+        int firstElement = 0;
+        int max = 0;
+        int min = 0;
+        boolean finish = false;
+        int index = 0;
+
+        for (int i = 0; i < n; i++) {
+            int v = in.nextInt();
+            stocks.add(v);
+        }
+
+        // Write an answer using System.out.println()
+        // To debug: System.err.println("Debug messages...");
+
+        // firstElement = Collections.firstElement(stocks);
+        // min = Collections.min(stocks);
+
+        firstElement = stocks.get(0);
+
+        while(!finish){
+
+            System.err.println("firstElement: " + firstElement);
+            System.err.println("size: " + (stocks.size()-1));          
+
+            /* If the list is empty the task is over */ 
+            if(stocks.isEmpty()){
+                finish = true; 
+            }
+            /* if the first element is the min there is no smaller in the future elements */             
+            else if (firstElement == Collections.min(stocks)) {
+                stocks.remove(0);  
+            }
+            /* if there is smaller element in the list we should investigate them */                
+            else{
+                /* initalize min and max */
+                min = Collections.min(stocks);
+                max = Collections.max(stocks);
+
+                /* if the min element after the max then we found the biggest difference */
+                if(stocks.indexOf(max) < stocks.indexOf(min)){
+                    /* There could be case when our pile is small and this will be true so it can override our result it needs to be checked */
+                    if(min - max <= maxLoss){
+                        maxLoss = min - max;
+                        finish = true;
+                    }
+                }
+                /* if the max element does not have small pair we should exclude */ 
+                else{
+                    stocks.remove(stocks.indexOf(max));                  
+                }
+
+                for(int stock : stocks){
+                    if(stock - firstElement <= maxLoss){
+                        maxLoss = stock - firstElement;
+                    }
+                }
+                stocks.remove(0);                 
+            }
+
+            /* if we have at least 2 element we should investigate */
+            if((stocks.size()-1) > 1){
+                firstElement = stocks.get(0);    
+            }
+            else{
+                finish = true;
+            }            
+        }
+
+        /* *** */
+        if(maxLoss > 0){
+            maxLoss = 0;
+        }
+
+        System.out.println(maxLoss);
+    }
+}
