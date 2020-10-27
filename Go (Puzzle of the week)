@@ -1,0 +1,91 @@
+import java.util.*;
+import java.io.*;
+import java.math.*;
+
+/**
+ * Auto-generated code below aims at helping you parse
+ * the standard input according to the problem statement.
+ **/
+class Solution {
+    /**
+    * x - linear
+    * y - vertical
+    **/ 
+    public static boolean isValid(ArrayList<String> boardState, String stone, int y, int x){
+        String block = boardState.get(y).substring(x,x+1);
+
+        //System.err.println("Current block position:" + " y: " + y + " x: " + x + " BorW: " + stone + " block: " + block);
+
+        if(block.equals(".")){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    public static boolean isSurrounde(ArrayList<String> boardState, String stone, int y, int x){
+        String block = boardState.get(y).substring(x,x+1);
+
+        System.err.println("Current block position:" + " y: " + y + " x: " + x + " BorW: " + stone + " block: " + block);
+
+        if(block.equals(".")){
+            return true;
+        }
+        else{
+            return false;
+        }
+        return true;
+    }
+
+    public static void main(String args[]) {
+        Scanner in = new Scanner(System.in);
+        int S = in.nextInt(); // the size of the board
+        int M = in.nextInt(); // the number of moves to be made
+        ArrayList<String> board = new ArrayList<String>();
+        boolean validFlag = true;
+
+        if (in.hasNextLine()) {
+            in.nextLine();
+        }
+        System.err.println("/******BasicState******/");
+        for (int i = 0; i < S; i++) {
+            String row = in.nextLine(); // a single row in the input board
+            board.add(row);
+            System.err.println(row);
+        }
+        System.err.println("/********Moves*********/");
+        for (int i = 0; i < M; i++) {
+            String move = in.nextLine(); // a strng representation of a move
+            System.err.println(move);
+            String elementsOfMove[] = move.split(" ");
+            String stoneType = elementsOfMove[0];
+            int y = Integer.parseInt(elementsOfMove[1]);
+            int x = Integer.parseInt(elementsOfMove[2]);
+            if(isValid(board,stoneType,y,x)){
+                String oldRow = board.get(y);
+                String modifiedRow =  "";
+                modifiedRow = modifiedRow.concat(oldRow.substring(0,x));
+                modifiedRow = modifiedRow.concat(stoneType);
+                modifiedRow = modifiedRow.concat(oldRow.substring(x+1,oldRow.length()));
+
+                System.err.println("OldRow: " + oldRow);
+                System.err.println("NewRow: " + modifiedRow);
+
+                board.set(y, modifiedRow);
+            }
+            else{
+                validFlag = false;
+                i = M;
+            }
+        }
+
+        if(validFlag){
+            for(String boardRow : board){
+                System.out.println(boardRow);
+            }
+        }
+        else{
+            System.out.println("NOT_VALID");
+        }
+    }
+}
