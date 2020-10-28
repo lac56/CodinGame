@@ -11,30 +11,113 @@ class Solution {
     * x - linear
     * y - vertical
     **/ 
-    public static boolean isValid(ArrayList<String> boardState, String stone, int y, int x){
-        String block = boardState.get(y).substring(x,x+1);
+    public static boolean isValid(ArrayList<String> boardState, String stone, int y, int x, int boardSize){
+        /* Equality is not allowed because we start counting the parts from 0. */
+        if(boardSize > y && boardSize > x){
+            String block = boardState.get(y).substring(x,x+1);
+            if(block.equals(".")){
+                return true;
+            }
+            else{
+                return false;
+            }            
+        }
+        else{
+            return false;
+        }
+    }
+    public static boolean isSurrounded(ArrayList<String> boardState, String stone, int y, int x, int boardSize){
+        //String block = boardState.get(y).substring(x,x+1);
+        int surroundCount = 0;
 
-        //System.err.println("Current block position:" + " y: " + y + " x: " + x + " BorW: " + stone + " block: " + block);
+        // Is the left element wall? //
+        if(0 < x-1){
+            surroundCount++;
+        }
+        // Is the right element wall? //
+        if(boardSize <= x+1){
+            surroundCount++;
+        }
+        // Is the top element wall? //
+        if(0 < y-1){
+            surroundCount++;
+        }
+        // Is the bottom element wall? //
+        if(boardSize <= y+1){
+            surroundCount++;
+        }
+        // Is the left element enemy? //
+        if(0 < x-1){
+            if(!boardState.get(y).substring(x-1,x).equals(".") && !boardState.get(y).substring(x-1,x).equals(stone)){
+                surroundCount++;
+            }
+        }
+        // Is the right element enemy? //
+        if(boardSize > x+1){
+            if(!boardState.get(y).substring(x+1,x+2).equals(".") && !boardState.get(y).substring(x+1,x+2).equals(stone)){
+                surroundCount++;
+            }
+        }
+        // Is the right element enemy? //
+        if(0 < y-1 && boardSize > y-1){
+            if(!boardState.get(y-1).substring(x,x+1).equals(".") && !boardState.get(y-1).substring(x,x+1).equals(stone)){
+                surroundCount++;
+            }
+        }
+        // Is the right element enemy? //
+        if(boardSize > y+1){
+            if(!boardState.get(y+1).substring(x,x+1).equals(".") && !boardState.get(y+1).substring(x,x+1).equals(stone)){
+                surroundCount++;
+            }
+        }
 
-        if(block.equals(".")){
+        // fuck
+        if(surroundCount == 4){
             return true;
         }
         else{
             return false;
         }
     }
-    public static boolean isSurrounde(ArrayList<String> boardState, String stone, int y, int x){
+    public static ArrayList<String> modifyBlock(ArrayList<String> boardState, String stone, int y, int x){
+        String oldRow = boardState.get(y);
+        String modifiedRow =  "";
+        modifiedRow = modifiedRow.concat(oldRow.substring(0,x));
+        modifiedRow = modifiedRow.concat(stone);
+        modifiedRow = modifiedRow.concat(oldRow.substring(x+1,oldRow.length()));
+
+        boardState.set(y, modifiedRow);
+
+        return boardState;
+
+    }
+    public static boolean isSurroundedGroup(ArrayList<String> boardState, String stone, int y, int x){
         String block = boardState.get(y).substring(x,x+1);
+        String neighbourBlock = boardState.get(y).substring(x-1,x); // The neighbour from left.
 
-        System.err.println("Current block position:" + " y: " + y + " x: " + x + " BorW: " + stone + " block: " + block);
+        ArrayList<Integer> blockCoordinates = new ArrayList<Integer>();
+        blockCoordinates.add(y);
+        blockCoordinates.add(x);
+        ArrayList<ArrayList<Integer>> groupOfBlocks = new ArrayList<ArrayList<Integer>>(); 
+        groupOfBlocks.add(blockCoordinates);
 
-        if(block.equals(".")){
-            return true;
+        //System.err.println("Current block position:" + " y: " + y + " x: " + x + " BorW: " + stone + " block: " + block);
+
+        if(!neighbourBlock.equals(".") && !block.equals(neighbourBlock)){
+            blockCoordinates.set(0, x-1);
+            blockCoordinates.set(1, y);
+
+            groupOfBlocks.add(blockCoordinates);           
         }
-        else{
-            return false;
-        }
+
         return true;
+    }
+    public static boolean isSoucidalMove(ArrayList<String> boardState, String stone, int y, int x, int boardSize){
+        String block = boardState.get(y).substring(x,x+1);
+        
+        //System.err.println("Current block position:" + " y: " + y + " x: " + x + " BorW: " + stone + " block: " + block);
+
+        return false;
     }
 
     public static void main(String args[]) {
@@ -61,21 +144,65 @@ class Solution {
             String stoneType = elementsOfMove[0];
             int y = Integer.parseInt(elementsOfMove[1]);
             int x = Integer.parseInt(elementsOfMove[2]);
-            if(isValid(board,stoneType,y,x)){
-                String oldRow = board.get(y);
-                String modifiedRow =  "";
-                modifiedRow = modifiedRow.concat(oldRow.substring(0,x));
-                modifiedRow = modifiedRow.concat(stoneType);
-                modifiedRow = modifiedRow.concat(oldRow.substring(x+1,oldRow.length()));
 
-                System.err.println("OldRow: " + oldRow);
-                System.err.println("NewRow: " + modifiedRow);
+            /* If our move valid we move that. */
+            if(isValid(board,stoneType,y,x,S)){
 
-                board.set(y, modifiedRow);
+                board = modifyBlock(board, stoneType, y, x);
+
+                int left = x-1;
+                int right = x+1;
+                int top = y-1;
+                int bottom = y+1;
+
+                if(stoneType.equals("B")){
+                    if(isSurrounded(board, "B", y, left, S)){
+                        board = modifyBlock(board, ".", y, left);                        
+                    }
+                    if(isSurrounded(board, "B", y, right, S)){
+                        board = modifyBlock(board, ".", y, right);                        
+                    }
+                    if(isSurrounded(board, "B", top, x, S)){
+                        board = modifyBlock(board, ".", top, x);                        
+                    }
+                    if(isSurrounded(board, "B", bottom, x, S)){
+                        board = modifyBlock(board, ".", bottom, x);                        
+                    }
+                }
+                if(stoneType.equals("W")){
+                    if(isSurrounded(board, "W", y, left, S)){
+                        board = modifyBlock(board, ".", y, left);                        
+                    }
+                    if(isSurrounded(board, "W", y, right, S)){
+                        board = modifyBlock(board, ".", y, right);                        
+                    }
+                    if(isSurrounded(board, "W", top, x, S)){
+                        board = modifyBlock(board, ".", top, x);                        
+                    }
+                    if(isSurrounded(board, "W", bottom, x, S)){
+                        board = modifyBlock(board, ".", bottom, x);                        
+                    }
+                }
+
+                // String oldRow = board.get(y);
+                // String modifiedRow =  "";
+                // modifiedRow = modifiedRow.concat(oldRow.substring(0,x));
+                // modifiedRow = modifiedRow.concat(stoneType);
+                // modifiedRow = modifiedRow.concat(oldRow.substring(x+1,oldRow.length()));
+
+                // System.err.println("OldRow: " + oldRow);
+                // System.err.println("NewRow: " + modifiedRow);
+
+                // board.set(y, modifiedRow);
             }
             else{
                 validFlag = false;
                 i = M;
+            }
+
+            /* Draw the new board. */
+            for(String row : board){
+                System.err.println(row);
             }
         }
 
