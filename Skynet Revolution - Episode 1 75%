@@ -6,110 +6,213 @@ import java.math.*;
  * Auto-generated code below aims at helping you parse
  * the standard input according to the problem statement.
  **/
-class Player {
-
-    public static int findNearestGateway(LinkedList<Integer> fngGatewayList, int fngSIPos){
-        int returnIndex = 0;
-
-        for(int currentGateway : fngGatewayList){
-            System.err.println("Size: "+ fngGatewayList.get(fngGatewayList.size() - 1) + "idx: " + fngGatewayList.get(fngGatewayList.indexOf(currentGateway)));
-            if (fngGatewayList.get(fngGatewayList.size() - 1) == fngGatewayList.get(fngGatewayList.indexOf(currentGateway))){
-                System.err.println("First if executed.");
-                returnIndex = fngGatewayList.size() - 1;
-                /* if is this the last element then stop */
-                break;
+class Solution {
+    /**
+    * x - linear
+    * y - vertical
+    **/ 
+    public static boolean isValid(ArrayList<String> boardState, String stone, int y, int x, int boardSize){
+        /* Equality is not allowed because we start counting the parts from 0. */
+        if(boardSize > y && boardSize > x){
+            String block = boardState.get(y).substring(x,x+1);
+            if(block.equals(".")){
+                return true;
             }
-            else if (currentGateway < fngSIPos && fngSIPos < fngGatewayList.get(fngGatewayList.indexOf(currentGateway) + 1)) {
-                System.err.println("Second if executed.");                
-                /* if it is not the last but fit on our rule then we have our answer */
-                returnIndex = fngGatewayList.indexOf(currentGateway);
-                break;
+            else{
+                return false;
+            }            
+        }
+        else{
+            return false;
+        }
+    }
+    public static boolean isSurrounded(ArrayList<String> boardState, String stone, int y, int x, int boardSize){
+        //String block = boardState.get(y).substring(x,x+1);
+        int surroundCount = 0;
+
+        // Is the left element wall? //
+        if(0 < x-1){
+            surroundCount++;
+        }
+        // Is the right element wall? //
+        if(boardSize <= x+1){
+            surroundCount++;
+        }
+        // Is the top element wall? //
+        if(0 < y-1){
+            surroundCount++;
+        }
+        // Is the bottom element wall? //
+        if(boardSize <= y+1){
+            surroundCount++;
+        }
+        // Is the left element enemy? //
+        if(0 < x-1){
+            if(!boardState.get(y).substring(x-1,x).equals(".") && !boardState.get(y).substring(x-1,x).equals(stone)){
+                surroundCount++;
+            }
+        }
+        // Is the right element enemy? //
+        if(boardSize > x+1){
+            if(!boardState.get(y).substring(x+1,x+2).equals(".") && !boardState.get(y).substring(x+1,x+2).equals(stone)){
+                surroundCount++;
+            }
+        }
+        // Is the right element enemy? //
+        if(0 < y-1 && boardSize > y-1){
+            if(!boardState.get(y-1).substring(x,x+1).equals(".") && !boardState.get(y-1).substring(x,x+1).equals(stone)){
+                surroundCount++;
+            }
+        }
+        // Is the right element enemy? //
+        if(boardSize > y+1){
+            if(!boardState.get(y+1).substring(x,x+1).equals(".") && !boardState.get(y+1).substring(x,x+1).equals(stone)){
+                surroundCount++;
             }
         }
 
-        System.err.println("The closest gateway index: " + returnIndex);
-        return returnIndex;
+        // fuck
+        if(surroundCount == 4){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    public static ArrayList<String> modifyBlock(ArrayList<String> boardState, String stone, int y, int x){
+        String oldRow = boardState.get(y);
+        String modifiedRow =  "";
+        modifiedRow = modifiedRow.concat(oldRow.substring(0,x));
+        modifiedRow = modifiedRow.concat(stone);
+        modifiedRow = modifiedRow.concat(oldRow.substring(x+1,oldRow.length()));
+
+        boardState.set(y, modifiedRow);
+
+        return boardState;
+
+    }
+    public static boolean isSurroundedGroup(ArrayList<String> boardState, String stone, int y, int x){
+        String block = boardState.get(y).substring(x,x+1);
+        String neighbourBlock = boardState.get(y).substring(x-1,x); // The neighbour from left.
+
+        ArrayList<Integer> blockCoordinates = new ArrayList<Integer>();
+        blockCoordinates.add(y);
+        blockCoordinates.add(x);
+        ArrayList<ArrayList<Integer>> groupOfBlocks = new ArrayList<ArrayList<Integer>>(); 
+        groupOfBlocks.add(blockCoordinates);
+
+        //System.err.println("Current block position:" + " y: " + y + " x: " + x + " BorW: " + stone + " block: " + block);
+
+        if(!neighbourBlock.equals(".") && !block.equals(neighbourBlock)){
+            blockCoordinates.set(0, x-1);
+            blockCoordinates.set(1, y);
+
+            groupOfBlocks.add(blockCoordinates);           
+        }
+
+        return true;
+    }
+    public static boolean isSoucidalMove(ArrayList<String> boardState, String stone, int y, int x, int boardSize){
+        String block = boardState.get(y).substring(x,x+1);
+        
+        //System.err.println("Current block position:" + " y: " + y + " x: " + x + " BorW: " + stone + " block: " + block);
+
+        return false;
     }
 
     public static void main(String args[]) {
         Scanner in = new Scanner(System.in);
-        int N = in.nextInt(); // the total number of nodes in the level, including the gateways
-        int L = in.nextInt(); // the number of links
-        int E = in.nextInt(); // the number of exit gateways
+        int S = in.nextInt(); // the size of the board
+        int M = in.nextInt(); // the number of moves to be made
+        ArrayList<String> board = new ArrayList<String>();
+        boolean validFlag = true;
 
-        int pointA = 0, pointB = 0;
-        int nearestGateway = 0;
-        int thereIsCommonLink = 0;
-
-        System.err.println("N:"+N+" L:"+L+" E:"+E);
-
-        /*This will hold the total gateways*/
-        LinkedList<Integer> gatewayList = new LinkedList<Integer>();
-
-        /*Contains the number of links between the gateways*/
-        //LinkedList<Integer> links = new LinkedList<Integer>();
-        //It is points to its elements I should use it in the cycle.
-
-        /*Contains the links pairs*/
-        LinkedList<LinkedList<Integer>> matrix = new LinkedList<LinkedList<Integer>>();
-
-        for (int i = 0; i < L; i++) {
-            int N1 = in.nextInt(); // N1 and N2 defines a link between these nodes
-            int N2 = in.nextInt();
-            LinkedList<Integer> links = new LinkedList<Integer>();
-            links.add(N1);
-            links.add(N2);
-
-            matrix.add(links);
-            // System.err.println(links.toString());
-            // System.err.println("N1:"+N1+" N2:"+N2);
-            // System.err.println(matrix.toString());            
+        if (in.hasNextLine()) {
+            in.nextLine();
         }
-
-        for (int i = 0; i < E; i++) {
-            int EI = in.nextInt(); // the index of a gateway node
-            gatewayList.add(EI);
-            System.err.println("EI:"+EI);
+        System.err.println("/******BasicState******/");
+        for (int i = 0; i < S; i++) {
+            String row = in.nextLine(); // a single row in the input board
+            board.add(row);
+            System.err.println(row);
         }
+        System.err.println("/********Moves*********/");
+        for (int i = 0; i < M; i++) {
+            String move = in.nextLine(); // a strng representation of a move
+            System.err.println(move);
+            String elementsOfMove[] = move.split(" ");
+            String stoneType = elementsOfMove[0];
+            int y = Integer.parseInt(elementsOfMove[1]);
+            int x = Integer.parseInt(elementsOfMove[2]);
 
-        System.err.println("gatewayList:" + gatewayList.toString());
-        System.err.println("matrix:" + matrix.toString());
+            /* If our move valid we move that. */
+            if(isValid(board,stoneType,y,x,S)){
 
-        // game loop
-        while (true) {
-            int SI = in.nextInt(); // The index of the node on which the Skynet agent is positioned this turn
-    
-            /*Find the nearest gateway to the Skynet.*/
-            /**/
-            System.err.println("SI pos:" + SI);          
-            nearestGateway = gatewayList.get(findNearestGateway(gatewayList,SI));    
+                board = modifyBlock(board, stoneType, y, x);
 
-            for(LinkedList<Integer> subList : matrix)
-            {
-                if(subList.indexOf(nearestGateway) != -1 && subList.indexOf(SI) !=-1)  /*gateway index + nearest node index*/
-                {
-                    System.err.println("Inner part has ben executed.");
-                    pointA = subList.get(0);
-                    pointB = subList.get(1);
-                    System.out.println(pointA+" "+pointB);
-                    thereIsCommonLink = 1;
-                    break;
-                }          
-            }
-            if(thereIsCommonLink == 0){
-                for(LinkedList<Integer> subList : matrix)
-                {
-                    if(subList.indexOf(nearestGateway) != -1)  /*gateway index + nearest node index*/
-                    {
-                        System.err.println("Outer part has ben executed.");                        
-                        pointA = subList.get(0);
-                        pointB = subList.get(1);
-                        System.out.println(pointA+" "+pointB);
-                        break;
-                    }          
+                int left = x-1;
+                int right = x+1;
+                int top = y-1;
+                int bottom = y+1;
+
+                if(stoneType.equals("B")){
+                    if(isSurrounded(board, "B", y, left, S)){
+                        board = modifyBlock(board, ".", y, left);                        
+                    }
+                    if(isSurrounded(board, "B", y, right, S)){
+                        board = modifyBlock(board, ".", y, right);                        
+                    }
+                    if(isSurrounded(board, "B", top, x, S)){
+                        board = modifyBlock(board, ".", top, x);                        
+                    }
+                    if(isSurrounded(board, "B", bottom, x, S)){
+                        board = modifyBlock(board, ".", bottom, x);                        
+                    }
                 }
+                if(stoneType.equals("W")){
+                    if(isSurrounded(board, "W", y, left, S)){
+                        board = modifyBlock(board, ".", y, left);                        
+                    }
+                    if(isSurrounded(board, "W", y, right, S)){
+                        board = modifyBlock(board, ".", y, right);                        
+                    }
+                    if(isSurrounded(board, "W", top, x, S)){
+                        board = modifyBlock(board, ".", top, x);                        
+                    }
+                    if(isSurrounded(board, "W", bottom, x, S)){
+                        board = modifyBlock(board, ".", bottom, x);                        
+                    }
+                }
+
+                // String oldRow = board.get(y);
+                // String modifiedRow =  "";
+                // modifiedRow = modifiedRow.concat(oldRow.substring(0,x));
+                // modifiedRow = modifiedRow.concat(stoneType);
+                // modifiedRow = modifiedRow.concat(oldRow.substring(x+1,oldRow.length()));
+
+                // System.err.println("OldRow: " + oldRow);
+                // System.err.println("NewRow: " + modifiedRow);
+
+                // board.set(y, modifiedRow);
             }
-            thereIsCommonLink = 0;
+            else{
+                validFlag = false;
+                i = M;
+            }
+
+            /* Draw the new board. */
+            for(String row : board){
+                System.err.println(row);
+            }
+        }
+
+        if(validFlag){
+            for(String boardRow : board){
+                System.out.println(boardRow);
+            }
+        }
+        else{
+            System.out.println("NOT_VALID");
         }
     }
 }
