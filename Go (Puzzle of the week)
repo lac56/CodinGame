@@ -28,58 +28,125 @@ class Solution {
     }
     public static ArrayList<Integer> isSurrounded(ArrayList<String> boardState, String stone, int y, int x, int boardSize, ArrayList<Integer> lastCoordinates){
         ArrayList<Integer> coordinate = new ArrayList<Integer>();
-        coordinate.add(y);
-        coordinate.add(x);
         int surroundCount = 0;
+        boolean repeated = false;
+        coordinate.add(y);
+        coordinate.add(x);        
 
-        // Is the left element wall? //
-        if(0 < x-1){
-            surroundCount++;
-        }
-        // Is the right element wall? //
-        if(boardSize <= x+1){
-            surroundCount++;
-        }
-        // Is the top element wall? //
-        if(0 < y-1){
-            surroundCount++;
-        }
-        // Is the bottom element wall? //
-        if(boardSize <= y+1){
-            surroundCount++;
-        }
-        // Is the left element enemy? //
-        if(0 < x-1 && 0 < y && boardSize > y){
-            if(!boardState.get(y).substring(x-1,x).equals(".")){
-                surroundCount++;
-            }
-        }
-        // Is the right element enemy? //
-        if(boardSize > x+1 && 0 < y && boardSize > y){
-            if(!boardState.get(y).substring(x+1,x+2).equals(".")){
-                surroundCount++;
-            }
-        }
-        // Is the right element enemy? //
-        if(0 < y-1 && boardSize > y-1 && boardSize > x && 0 < x){
-            if(!boardState.get(y-1).substring(x,x+1).equals(".")){
-                surroundCount++;
-            }
-        }
-        // Is the right element enemy? //
-        if(boardSize > y+1 && boardSize > x && 0 < x){
-            if(!boardState.get(y+1).substring(x,x+1).equals(".")){
-                surroundCount++;
+        //System.err.println("Checking y:" + y + " Checking x:" + x);
+        for(int j = 0; j < lastCoordinates.size()-1; j=j+2){        
+            if(lastCoordinates.get(j) == y && lastCoordinates.get(j+1) == x){
+                repeated = true;
             }
         }
 
-        // fuck
-        if(surroundCount == 4){
-            coordinate = isSurrounded(boardState,stone,y,x,boardSize,coordinate);
-        }
-        else{
-            coordinate.remove(coordinate.indexOf(y));
-            coordinate.remove(coordinate.indexOf(x));
+        if(!repeated){
+            // If we check the neigbour block we should check the position of it // 
+            if(0 <= x && x < boardSize && 0 <= y && y < boardSize){
+                // Is the left element wall? //
+                if(0 > x-1){
+                    //System.err.println("W1");
+                    surroundCount++;
+                }
+                // Is the right element wall? //
+                if(boardSize-1 < x+1){
+                    //System.err.println("W2");
+                    surroundCount++;
+                }
+                // Is the top element wall? //
+                if(0 > y-1){
+                    //System.err.println("W3");
+                    surroundCount++;
+                }
+                // Is the bottom element wall? //
+                if(boardSize-1 < y+1){
+                    //System.err.println("W4");
+                    surroundCount++;
+                }
+                // Is the left element enemy? //
+                if(0 <= x-1 && 0 <= y && y < boardSize){
+                    if(!boardState.get(y).substring(x-1,x).equals(".")){
+                        System.err.println("E1");
+                        surroundCount++;
+                    }
+                }
+                // Is the right element enemy? //
+                if(0 <= y && y < boardSize && 0 <= x && x+1 <= boardSize-1){
+                    if(!boardState.get(y).substring(x+1,x+2).equals(".")){
+                        System.err.println("E2");
+                        surroundCount++;
+                    }
+                }
+                // Is the top element enemy? //
+                if(0 <= y-1 && y-1 < boardSize && 0 <= x && x < boardSize-1){
+                    if(!boardState.get(y-1).substring(x,x+1).equals(".")){
+                        System.err.println("E3");
+                        surroundCount++;
+                    }
+                }
+                // Is the bottom element enemy? //
+                if(0 <= y && y+1 < boardSize && 0 <= x && x < boardSize-1){
+                    if(!boardState.get(y+1).substring(x,x+1).equals(".")){
+                        System.err.println("E4");
+                        surroundCount++;
+                    }
+                }
+            }
+
+            System.err.println("Checked y:" + y + " Checked x:" + x + " Scount: " + surroundCount);
+            
+            // fuck
+            if(surroundCount == 4){
+                int left = x-1;
+                int right = x+1;
+                int top = y-1;
+                int bottom = y+1;
+
+                if(left > 0){
+                    String block = boardState.get(y).substring(left,left+1);
+                    lastCoordinates.add(y);
+                    lastCoordinates.add(x);
+                    System.err.println("Investigated block: " + block);
+                    if(!stone.equals(block)){
+                        coordinate.add(isSurrounded(boardState, stone, y, left, boardSize,lastCoordinates).get(0));
+                        coordinate.add(isSurrounded(boardState, stone, y, left, boardSize,lastCoordinates).get(1));
+                    }
+                }
+                if(right < boardSize-1){
+                    String block = boardState.get(y).substring(right,right+1);
+                    lastCoordinates.add(y);
+                    lastCoordinates.add(x);                    
+                    System.err.println("Investigated block: " + block);
+                    if(!stone.equals(block)){
+                        coordinate.add(isSurrounded(boardState, stone, y, right, boardSize,lastCoordinates).get(0));
+                        coordinate.add(isSurrounded(boardState, stone, y, right, boardSize,lastCoordinates).get(1));
+                    }
+                }
+                if(0 <= top && top < boardSize){
+                    String block = boardState.get(top).substring(x,x+1);
+                    lastCoordinates.add(y);
+                    lastCoordinates.add(x);                    
+                    System.err.println("Investigated block: " + block);
+                    if(!stone.equals(block)){
+                        coordinate.add(isSurrounded(boardState, stone, top, x, boardSize,lastCoordinates).get(0));
+                        coordinate.add(isSurrounded(boardState, stone, top, x, boardSize,lastCoordinates).get(1));
+                    }
+                }
+                if(bottom < boardSize){
+                    String block = boardState.get(bottom).substring(x,x+1);
+                    lastCoordinates.add(y);
+                    lastCoordinates.add(x);                    
+                    System.err.println("Investigated block: " + block);
+                    if(!stone.equals(block)){
+                        coordinate.add(isSurrounded(boardState, stone, bottom, x, boardSize,lastCoordinates).get(0));
+                        coordinate.add(isSurrounded(boardState, stone, bottom, x, boardSize,lastCoordinates).get(1));
+                    }
+                }                                    
+            }
+            else{
+                coordinate.set(coordinate.indexOf(y),-1);
+                coordinate.set(coordinate.indexOf(x),-1);
+            }
         }
 
         return coordinate;
@@ -132,18 +199,18 @@ class Solution {
         ArrayList<String> board = new ArrayList<String>();
         ArrayList<ArrayList<Integer>> coordinatesToBeModified = new ArrayList<ArrayList<Integer>>();
         ArrayList<Integer> dummyCoordinates = new ArrayList<Integer>();
-        dummyCoordinates.add(0);
-        dummyCoordinates.add(0);
+        dummyCoordinates.add(-1);
+        dummyCoordinates.add(-1);
         boolean validFlag = true;
 
         if (in.hasNextLine()) {
             in.nextLine();
         }
-        System.err.println("/******BasicState******/");
+        //System.err.println("/******BasicState******/");
         for (int i = 0; i < S; i++) {
             String row = in.nextLine(); // a single row in the input board
             board.add(row);
-            System.err.println(row);
+            //System.err.println(row);
         }
         System.err.println("/********Moves*********/");
         for (int i = 0; i < M; i++) {
@@ -159,6 +226,11 @@ class Solution {
 
                 board = modifyBlock(board, stoneType, y, x);
 
+                /* Draw the new board. */
+                for(String row : board){
+                    System.err.println(row);
+                }
+
                 int left = x-1;
                 int right = x+1;
                 int top = y-1;
@@ -170,10 +242,14 @@ class Solution {
                     coordinatesToBeModified.add(isSurrounded(board, "B", top, x, S,dummyCoordinates));
                     coordinatesToBeModified.add(isSurrounded(board, "B", bottom, x, S,dummyCoordinates));
 
-                    if(coordinatesToBeModified.isEmpty()){
+                    if(!coordinatesToBeModified.isEmpty()){
                         for(ArrayList<Integer> coordinateToBeModified : coordinatesToBeModified){
-                            board = modifyBlock(board, ".", coordinateToBeModified.get(0), coordinateToBeModified.get(1)); 
-                        } 
+                            for(int j = 0; j < coordinateToBeModified.size()-1; j=j+2){
+                                if(coordinateToBeModified.get(j) > -1 && coordinateToBeModified.get(j+1) > -1){
+                                    board = modifyBlock(board, ".", coordinateToBeModified.get(j), coordinateToBeModified.get(j+1)); 
+                                }
+                            }
+                        }
                     }
                 }
                 if(stoneType.equals("W")){
@@ -181,22 +257,23 @@ class Solution {
                     coordinatesToBeModified.add(isSurrounded(board, "W", y, right, S,dummyCoordinates));
                     coordinatesToBeModified.add(isSurrounded(board, "W", top, x, S,dummyCoordinates));
                     coordinatesToBeModified.add(isSurrounded(board, "W", bottom, x, S,dummyCoordinates));
-                }
 
-                if(coordinatesToBeModified.isEmpty()){
-                    for(ArrayList<Integer> coordinateToBeModified : coordinatesToBeModified){
-                        board = modifyBlock(board, ".", coordinateToBeModified.get(0), coordinateToBeModified.get(1)); 
-                    } 
-                }             
+                    if(!coordinatesToBeModified.isEmpty()){
+                        for(ArrayList<Integer> coordinateToBeModified : coordinatesToBeModified){
+                            for(int j = 0; j < coordinateToBeModified.size()-1; j=j+2){
+                                if(coordinateToBeModified.get(j) > -1 && coordinateToBeModified.get(j+1) > -1){
+                                    board = modifyBlock(board, ".", coordinateToBeModified.get(j), coordinateToBeModified.get(j+1)); 
+                                }
+                            }
+                        }                       
+                    }
+                }          
             }
             else{
                 validFlag = false;
                 i = M;
             }
-            /* Draw the new board. */
-            for(String row : board){
-                System.err.println(row);
-            }
+            coordinatesToBeModified.clear();       
             System.err.println("/---------------------------/");
         }
 
