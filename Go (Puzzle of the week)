@@ -12,11 +12,22 @@ class Solution {
     * y - vertical
     **/ 
     public static boolean isValid(ArrayList<String> boardState, String stone, int y, int x, int boardSize){
+        ArrayList<Integer> dummyCoordinates = new ArrayList<Integer>();
+        dummyCoordinates.add(-1);
+        dummyCoordinates.add(-1);
+        ArrayList<Integer> coordinateHolder = new ArrayList<Integer>();               
         /* Equality is not allowed because we start counting the parts from 0. */
         if(boardSize > y && boardSize > x){
             String block = boardState.get(y).substring(x,x+1);
             if(block.equals(".")){
-                return true;
+                coordinateHolder.add(isSurrounded(boardState, stone, y, x, boardSize,dummyCoordinates).get(0));
+                coordinateHolder.add(isSurrounded(boardState, stone, y, x, boardSize,dummyCoordinates).get(1));                
+                if(coordinateHolder.get(0) ==-1 && coordinateHolder.get(1) ==-1){
+                    return true;  
+                }
+                else{
+                    return false;                     
+                }
             }
             else{
                 return false;
@@ -93,9 +104,8 @@ class Solution {
                 }
             }
 
-            System.err.println("Checked y:" + y + " Checked x:" + x + " Scount: " + surroundCount);
+            //System.err.println("Checked y:" + y + " Checked x:" + x + " Scount: " + surroundCount);
             
-            // fuck
             if(surroundCount == 4){
                 int left = x-1;
                 int right = x+1;
@@ -106,7 +116,7 @@ class Solution {
                     String block = boardState.get(y).substring(left,left+1);
                     lastCoordinates.add(y);
                     lastCoordinates.add(x);
-                    System.err.println("Investigated block: " + block);
+                    //System.err.println("Investigated block: " + block);
                     if(!stone.equals(block)){
                         coordinate.add(isSurrounded(boardState, stone, y, left, boardSize,lastCoordinates).get(0));
                         coordinate.add(isSurrounded(boardState, stone, y, left, boardSize,lastCoordinates).get(1));
@@ -116,7 +126,7 @@ class Solution {
                     String block = boardState.get(y).substring(right,right+1);
                     lastCoordinates.add(y);
                     lastCoordinates.add(x);                    
-                    System.err.println("Investigated block: " + block);
+                    //System.err.println("Investigated block: " + block);
                     if(!stone.equals(block)){
                         coordinate.add(isSurrounded(boardState, stone, y, right, boardSize,lastCoordinates).get(0));
                         coordinate.add(isSurrounded(boardState, stone, y, right, boardSize,lastCoordinates).get(1));
@@ -126,7 +136,7 @@ class Solution {
                     String block = boardState.get(top).substring(x,x+1);
                     lastCoordinates.add(y);
                     lastCoordinates.add(x);                    
-                    System.err.println("Investigated block: " + block);
+                    //System.err.println("Investigated block: " + block);
                     if(!stone.equals(block)){
                         coordinate.add(isSurrounded(boardState, stone, top, x, boardSize,lastCoordinates).get(0));
                         coordinate.add(isSurrounded(boardState, stone, top, x, boardSize,lastCoordinates).get(1));
@@ -136,7 +146,7 @@ class Solution {
                     String block = boardState.get(bottom).substring(x,x+1);
                     lastCoordinates.add(y);
                     lastCoordinates.add(x);                    
-                    System.err.println("Investigated block: " + block);
+                    //System.err.println("Investigated block: " + block);
                     if(!stone.equals(block)){
                         coordinate.add(isSurrounded(boardState, stone, bottom, x, boardSize,lastCoordinates).get(0));
                         coordinate.add(isSurrounded(boardState, stone, bottom, x, boardSize,lastCoordinates).get(1));
@@ -163,34 +173,6 @@ class Solution {
         return boardState;
 
     }
-    public static boolean isSurroundedGroup(ArrayList<String> boardState, String stone, int y, int x){
-        String block = boardState.get(y).substring(x,x+1);
-        String neighbourBlock = boardState.get(y).substring(x-1,x); // The neighbour from left.
-
-        ArrayList<Integer> blockCoordinates = new ArrayList<Integer>();
-        blockCoordinates.add(y);
-        blockCoordinates.add(x);
-        ArrayList<ArrayList<Integer>> groupOfBlocks = new ArrayList<ArrayList<Integer>>(); 
-        groupOfBlocks.add(blockCoordinates);
-
-        //System.err.println("Current block position:" + " y: " + y + " x: " + x + " BorW: " + stone + " block: " + block);
-
-        if(!neighbourBlock.equals(".") && !block.equals(neighbourBlock)){
-            blockCoordinates.set(0, x-1);
-            blockCoordinates.set(1, y);
-
-            groupOfBlocks.add(blockCoordinates);           
-        }
-
-        return true;
-    }
-    public static boolean isSoucidalMove(ArrayList<String> boardState, String stone, int y, int x, int boardSize){
-        String block = boardState.get(y).substring(x,x+1);
-        
-        //System.err.println("Current block position:" + " y: " + y + " x: " + x + " BorW: " + stone + " block: " + block);
-
-        return false;
-    }
 
     public static void main(String args[]) {
         Scanner in = new Scanner(System.in);
@@ -202,6 +184,7 @@ class Solution {
         dummyCoordinates.add(-1);
         dummyCoordinates.add(-1);
         boolean validFlag = true;
+
 
         if (in.hasNextLine()) {
             in.nextLine();
@@ -223,7 +206,7 @@ class Solution {
 
             /* If our move valid we move that. */
             if(isValid(board,stoneType,y,x,S)){
-
+                
                 board = modifyBlock(board, stoneType, y, x);
 
                 /* Draw the new board. */
